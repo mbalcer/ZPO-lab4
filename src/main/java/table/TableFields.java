@@ -4,9 +4,9 @@ public class TableFields {
 
     private int no;
     private String field;
-    private String value;
+    private Object value;
 
-    public TableFields(int no, String field, String value) {
+    public TableFields(int no, String field, Object value) {
         this.no = no;
         this.field = field;
         this.value = value;
@@ -31,11 +31,20 @@ public class TableFields {
         this.field = field;
     }
 
-    public String getValue() {
+    public Object getValue() {
         return value;
     }
 
-    public void setValue(String value) {
+    public void setValue(Object value) {
         this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return "TableFields{" +
+                "no=" + no +
+                ", field='" + field + '\'' +
+                ", value='" + value + '\'' +
+                '}';
     }
 }

@@ -12,6 +12,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import table.TableFields;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -94,7 +95,13 @@ public class MainController {
         Arrays.stream(fields)
               .forEach(field -> {
                   field.setAccessible(true);
-                  tableFields.add(new TableFields(id.getAndIncrement(), field.getName(), "0"));
+                  Object fieldValue = null;
+                  try {
+                      fieldValue = field.get(object);
+                  } catch (IllegalAccessException e) {
+                      fieldValue = "";
+                  }
+                  tableFields.add(new TableFields(id.getAndIncrement(), field.getName(), fieldValue));
               });
         tvFields.setItems(tableFields);
     }
