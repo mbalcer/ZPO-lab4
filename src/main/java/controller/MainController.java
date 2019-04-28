@@ -11,6 +11,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import table.TableFields;
 import table.TableMethods;
+import utility.InfoDialog;
 
 import java.lang.reflect.*;
 import java.text.ParseException;
@@ -66,10 +67,12 @@ public class MainController {
     private Object object;
     private ObservableList<TableFields> tableFields;
     private ObservableList<TableMethods> tableMethods;
+    private InfoDialog info;
 
     public void initialize() {
         addDataToTableFields();
         addDataToTableMethods();
+        info = new InfoDialog();
     }
 
     @FXML
@@ -78,15 +81,15 @@ public class MainController {
         try {
             newClass = Class.forName(nameClass.getText());
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            info.showAlert("Error", "There isn't class with the given name");
+            return;
         }
 
         try {
             object = newClass.newInstance();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            info.showAlert("Error", "Error when creating a class instance");
+            return;
         }
 
         Method[] methods = newClass.getDeclaredMethods();
@@ -129,7 +132,7 @@ public class MainController {
                   try {
                       fieldValue = field.get(object);
                   } catch (IllegalAccessException e) {
-                      fieldValue = "";
+                      e.printStackTrace();
                   }
                   tableFields.add(new TableFields(id.getAndIncrement(), field.getName(), fieldValue));
               });
@@ -157,7 +160,11 @@ public class MainController {
         try {
             method = object.getClass().getDeclaredMethod(methodField.getText());
         } catch (NoSuchMethodException e) {
-            e.printStackTrace();
+            info.showAlert("Error", "The method entered doesn't exist");
+            return;
+        } catch (NullPointerException e) {
+            info.showAlert("Info", "First enter the name of the class");
+            return;
         }
 
         try {
@@ -167,10 +174,8 @@ public class MainController {
                 Object returnValue = method.invoke(object);
                 System.out.println(returnValue);
             }
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
+        } catch (ReflectiveOperationException e) {
+            info.showAlert("Error", "Error when invoking the method");
         }
     }
 
@@ -198,13 +203,18 @@ public class MainController {
 
             method.invoke(object, valueFieldAfterParse);
         } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
+            info.showAlert("Error", "There isn't such method");
+        } catch (ReflectiveOperationException e) {
+            info.showAlert("Error", "Error when invoking the method");
         } catch (ParseException e) {
-            e.printStackTrace();
+            info.showAlert("Error", "Error when parsing the date. Date must be format dd-mm-yyyy");
+        } catch (NumberFormatException e) {
+            info.showAlert("Error", "Error when parsing the number.");
+        } catch (IllegalArgumentException e) {
+            info.showAlert("Error", "There isn't such value Enum");
+        } catch (NullPointerException e) {
+            info.showAlert("Info", "First enter the name of the class");
+            return;
         }
 
         try {
