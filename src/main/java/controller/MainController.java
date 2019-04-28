@@ -157,7 +157,25 @@ public class MainController {
 
     @FXML
     void invokeMethod() {
+        Method method = null;
+        try {
+            method = object.getClass().getDeclaredMethod(methodField.getText());
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
 
+        try {
+            if (method.getReturnType().equals(void.class))
+                method.invoke(object);
+            else {
+                Object returnValue = method.invoke(object);
+                System.out.println(returnValue);
+            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
