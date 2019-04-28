@@ -9,14 +9,10 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import model.Color;
 import table.TableFields;
 import table.TableMethods;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
+import java.lang.reflect.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -197,8 +193,8 @@ public class MainController {
                 valueFieldAfterParse = valueField.getText();
             else if (parameterType.equals(Date.class))
                 valueFieldAfterParse = new SimpleDateFormat("dd-MM-yyyy").parse(valueField.getText());
-            else if (parameterType.equals(Enum.class))
-                valueFieldAfterParse = Color.valueOf(valueField.getText());
+            else if (parameterType.isEnum())
+                valueFieldAfterParse =  Enum.valueOf((Class<Enum>) parameterType, valueField.getText());
 
             method.invoke(object, valueFieldAfterParse);
         } catch (NoSuchMethodException e) {

@@ -7,9 +7,9 @@ public class Task {
     private String name;
     private String description;
     private Date date;
-    private Enum<Color> colorEnum;
+    private Color colorEnum;
 
-    public Task(int id, String name, String description, Date date, Enum<Color> colorEnum) {
+    public Task(int id, String name, String description, Date date, Color colorEnum) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -56,7 +56,7 @@ public class Task {
         return colorEnum;
     }
 
-    public void setColorEnum(Enum<Color> colorEnum) {
+    public void setColorEnum(Color colorEnum) {
         this.colorEnum = colorEnum;
     }
 
