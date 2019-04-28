@@ -11,6 +11,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import model.Color;
 import table.TableFields;
+import table.TableMethods;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -43,13 +44,13 @@ public class MainController {
     private TextField nameClass;
 
     @FXML
-    private TableView<?> tvMethods;
+    private TableView<TableMethods> tvMethods;
 
     @FXML
-    private TableColumn<?, ?> tcNoMethods;
+    private TableColumn<TableMethods, Integer> tcNoMethods;
 
     @FXML
-    private TableColumn<?, ?> tcMethod;
+    private TableColumn<TableMethods, String> tcMethod;
 
     @FXML
     private ComboBox<Method> setFields;
@@ -68,9 +69,11 @@ public class MainController {
 
     private Object object;
     private ObservableList<TableFields> tableFields;
+    private ObservableList<TableMethods> tableMethods;
 
     public void initialize() {
         addDataToTableFields();
+        addDataToTableMethods();
     }
 
     @FXML
@@ -92,8 +95,22 @@ public class MainController {
 
         Method[] methods = newClass.getDeclaredMethods();
         Field[] fields = newClass.getDeclaredFields();
-        fillMethodTable(fields, methods);
+        fillFieldTable(fields, methods);
         fillSettersComboBox(methods);
+        fillMethodTable(methods);
+    }
+
+    private void fillMethodTable(Method[] methods) {
+        tableMethods.clear();
+        AtomicInteger id = new AtomicInteger(1);
+
+        Arrays.stream(methods)
+                .filter(method -> method.getParameterCount()==0)
+                .forEach(method -> {
+                    method.setAccessible(true);
+                    tableMethods.add(new TableMethods(id.getAndIncrement(), method.getName()));
+                });
+        tvMethods.setItems(tableMethods);
     }
 
     private void fillSettersComboBox(Method[] methods) {
@@ -106,7 +123,7 @@ public class MainController {
         setFields.setItems(settersMethod);
     }
 
-    private void fillMethodTable(Field[] fields, Method[] methods) {
+    private void fillFieldTable(Field[] fields, Method[] methods) {
         tableFields.clear();
         AtomicInteger id = new AtomicInteger(1);
         Arrays.stream(fields)
@@ -125,10 +142,17 @@ public class MainController {
 
     private void addDataToTableFields() {
         tableFields = FXCollections.observableArrayList();
-        tcNoFields.setCellValueFactory(new PropertyValueFactory<TableFields, Integer>("no"));
-        tcField.setCellValueFactory(new PropertyValueFactory<TableFields, String>("field"));
-        tcValue.setCellValueFactory(new PropertyValueFactory<TableFields, String>("value"));
+        tcNoFields.setCellValueFactory(new PropertyValueFactory<>("no"));
+        tcField.setCellValueFactory(new PropertyValueFactory<>("field"));
+        tcValue.setCellValueFactory(new PropertyValueFactory<>("value"));
         tvFields.setItems(tableFields);
+    }
+
+    private void addDataToTableMethods() {
+        tableMethods = FXCollections.observableArrayList();
+        tcNoMethods.setCellValueFactory(new PropertyValueFactory<>("no"));
+        tcMethod.setCellValueFactory(new PropertyValueFactory<>("method"));
+        tvMethods.setItems(tableMethods);
     }
 
     @FXML
@@ -173,7 +197,7 @@ public class MainController {
             Class<?> newClass = Class.forName(nameClass.getText());
             Method[] methods = newClass.getDeclaredMethods();
             Field[] fields = newClass.getDeclaredFields();
-            fillMethodTable(fields, methods);
+            fillFieldTable(fields, methods);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
