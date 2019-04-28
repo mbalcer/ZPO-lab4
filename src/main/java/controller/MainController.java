@@ -18,7 +18,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainController {
 
@@ -126,6 +129,9 @@ public class MainController {
         tableFields.clear();
         AtomicInteger id = new AtomicInteger(1);
         Arrays.stream(fields)
+                .filter(field -> Arrays.stream(methods)
+                            .filter(method -> method.getName().startsWith("get"))
+                            .anyMatch(method -> method.getName().toLowerCase().endsWith(field.getName().toLowerCase())))
               .forEach(field -> {
                   field.setAccessible(true);
                   Object fieldValue = null;
