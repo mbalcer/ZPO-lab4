@@ -9,12 +9,17 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import model.Color;
 import table.TableFields;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainController {
@@ -47,7 +52,7 @@ public class MainController {
     private TableColumn<?, ?> tcMethod;
 
     @FXML
-    private ComboBox<?> setFields;
+    private ComboBox<Method> setFields;
 
     @FXML
     private Button btnValue;
@@ -88,9 +93,21 @@ public class MainController {
         Method[] methods = newClass.getDeclaredMethods();
         Field[] fields = newClass.getDeclaredFields();
         fillMethodTable(fields, methods);
+        fillSettersComboBox(methods);
+    }
+
+    private void fillSettersComboBox(Method[] methods) {
+        ObservableList<Method> settersMethod = FXCollections.observableArrayList();
+        Arrays.stream(methods)
+                .filter(method -> method.getName().startsWith("set"))
+                .forEach(method -> {
+                    settersMethod.add(method);
+                });
+        setFields.setItems(settersMethod);
     }
 
     private void fillMethodTable(Field[] fields, Method[] methods) {
+        tableFields.clear();
         AtomicInteger id = new AtomicInteger(1);
         Arrays.stream(fields)
               .forEach(field -> {
@@ -121,6 +138,45 @@ public class MainController {
 
     @FXML
     void setValue() {
+        Method method = null;
+        try {
+            method = object.getClass().getDeclaredMethod(setFields.getSelectionModel().getSelectedItem().getName(),
+                    setFields.getSelectionModel().getSelectedItem().getParameterTypes());
+
+            Class<?> parameterType = method.getParameterTypes()[0];
+
+            Object valueFieldAfterParse = null;
+
+            if (parameterType.equals(int.class))
+                valueFieldAfterParse = Integer.parseInt(valueField.getText());
+            else if (parameterType.equals(double.class))
+                valueFieldAfterParse = Double.parseDouble(valueField.getText());
+            else if (parameterType.equals(String.class))
+                valueFieldAfterParse = valueField.getText();
+            else if (parameterType.equals(Date.class))
+                valueFieldAfterParse = new SimpleDateFormat("dd-MM-yyyy").parse(valueField.getText());
+            else if (parameterType.equals(Enum.class))
+                valueFieldAfterParse = Color.valueOf(valueField.getText());
+
+            method.invoke(object, valueFieldAfterParse);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            Class<?> newClass = Class.forName(nameClass.getText());
+            Method[] methods = newClass.getDeclaredMethods();
+            Field[] fields = newClass.getDeclaredFields();
+            fillMethodTable(fields, methods);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
 
     }
 
