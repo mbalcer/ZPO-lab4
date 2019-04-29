@@ -52,7 +52,7 @@ public class Task {
         this.date = date;
     }
 
-    public Enum<Color> getColorEnum() {
+    public Color getColorEnum() {
         return colorEnum;
     }
 

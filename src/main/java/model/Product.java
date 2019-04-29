@@ -3,6 +3,7 @@ package model;
 public class Product {
     private int id;
     private String name;
+    private String description;
     private double price;
     private int qty;
 
@@ -38,6 +39,14 @@ public class Product {
         this.qty = qty;
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    private void showDescription() {
+        System.out.println(this.description);
+    }
+
     public void increaseQtyBy10() {
         this.qty+=10;
     }
@@ -46,7 +55,7 @@ public class Product {
         this.price*=1.1;
     }
 
-    public void reducePriceBy10Percent() {
+    private void reducePriceBy10Percent() {
         this.price*=0.9;
     }
 }
