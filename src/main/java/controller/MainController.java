@@ -165,6 +165,7 @@ public class MainController {
         Method method = null;
         try {
             method = object.getClass().getDeclaredMethod(methodField.getText());
+            method.setAccessible(true);
         } catch (NoSuchMethodException e) {
             info.showAlert("Error", "The method entered doesn't exist");
             return;
@@ -180,6 +181,7 @@ public class MainController {
                 Object returnValue = method.invoke(object);
                 System.out.println(returnValue);
             }
+            info.showAlert("Success", "Invoked '"+method.getName()+"' method");
         } catch (ReflectiveOperationException e) {
             info.showAlert("Error", "Error when invoking the method");
         }
